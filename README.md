@@ -15,11 +15,11 @@ install_github("noriakis/cpbnplot")
 
 ### Plot examples
 
-- The gene-to-gene relationship
+- The gene-to-gene relationship compared with the reference network.
 <img src="https://github.com/noriakis/software/blob/main/images/cpbnplot_readme_1.png?raw=true" width="800px">
 
 - The plot is customizable highliting edges and nodes like hub genes.
 <img src="https://github.com/noriakis/software/blob/main/images/cpbnplot_readme_2.png?raw=true" width="800px">
 
-- Another customized plot
+- Another customized plot.
 <img src="https://github.com/noriakis/software/blob/main/images/cpbnplot_readme_3.png?raw=true" width="800px">
