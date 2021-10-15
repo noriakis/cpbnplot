@@ -280,7 +280,7 @@ bngeneplot <- function (results, exp, expSample=NULL, algo="hc", R=20, returnNet
             filteredDep <- filteredDep %>% filter(gene_name %in% names(V(g))) %>%
                 arrange(match(gene_name, names(V(g))))
             depHistSub <- ggplot(filteredDep, aes(x=dependency)) +
-                geom_histogram(aes(fill=..count..), col="black") +
+                geom_histogram(binwidth=0.5, aes(fill=..count..), col="black") +
                 scale_fill_gradient("Count", low = "blue", high = "red")+
                 theme_minimal(base_family = "Arial Narrow") +
                 theme(axis.text=element_text(size=10), axis.title=element_text(size=12))
@@ -416,7 +416,7 @@ bngeneplot <- function (results, exp, expSample=NULL, algo="hc", R=20, returnNet
                     scale_edge_width(range=c(1, 3), guide="none")+
                     scale_edge_color_continuous(low="dodgerblue", high="tomato", name="strength")+
                     guides(edge_color = guide_edge_colorbar(title.vjust = 3))+
-                    geom_node_text(aes_(label=~name), check_overlap=TRUE, repel=TRUE, size = labelSize) +
+                    # geom_node_text(aes_(label=~name), check_overlap=TRUE, repel=TRUE, size = labelSize) +
                     theme_graph() +
                     scale_shape_identity()+
                     ggtitle(paste(paste("Overlapping nodes =", intNodeLen),
@@ -424,8 +424,19 @@ bngeneplot <- function (results, exp, expSample=NULL, algo="hc", R=20, returnNet
                                   paste("Edge number in inferred network =", avELen),
                                   paste(paste0(t, " edges ="), ovlELen),
                                   sep="\n"))
+                if (shadowText){
+                    intP <- intP + geom_node_text(aes_(label=~stringr::str_wrap(name, width = 25)),
+                        check_overlap=TRUE, repel=TRUE, size = labelSize,
+                        color = "white",
+                        bg.color = "black", segment.color="black",
+                        bg.r = .15)
+                } else {
+                    intP <- intP + geom_node_text(aes_(label=~stringr::str_wrap(name, width = 25)),
+                        check_overlap=TRUE, repel=TRUE, size = labelSize)
+                }
+
                 p2 <- p + theme(legend.position="none")
-                if (sizeDep){
+                if (sizeDep & showDepHist){
                     layoutDep <- "
                           ACCDD
                           BCCDD
