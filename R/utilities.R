@@ -109,7 +109,6 @@ queryCpDistLw <- function (fitted, candidate, evidence, level, point=FALSE, poin
     colnames(conc) <- c(candidate, "weights", "level")
     conc$level <- factor(conc$level)
     wm <- conc %>% group_by(level) %>% dplyr::summarise_at(candidate, ~ weighted.mean(., weights))
-    print(wm)
     returnList <- list()
     returnList[["df"]] <- conc
     returnList[["wm"]] <- wm
@@ -262,11 +261,11 @@ bnpathtest <- function (results, exp, expSample=NULL, algo="hc", algorithm.args=
                         qvalueCutOff=0.05, adjpCutOff=0.05, nCategory=15, Rrange=seq(2,40,2), scoreType="aic-g")
 {
     if (is.null(expSample)) {expSample=colnames(exp)}
-    if (results@keytype == "kegg"){
-        resultsGeneType <- "ENTREZID"
-    } else {
-        resultsGeneType <- results@keytype
-    }
+    # if (results@keytype == "kegg"){
+    #     resultsGeneType <- "ENTREZID"
+    # } else {
+    #     resultsGeneType <- results@keytype
+    # }
 
     res <- results@result
     if (!is.null(qvalueCutOff)) { res <- subset(res, qvalue < qvalueCutOff) }
@@ -282,7 +281,7 @@ bnpathtest <- function (results, exp, expSample=NULL, algo="hc", algorithm.args=
     for (i in seq_len(length(rownames(res)))) {
         genesInPathway <- strsplit(res[i, ]$geneID, "/")[[1]]
         genesInPathway <- clusterProfiler::bitr(genesInPathway,
-                                                fromType=resultsGeneType,
+                                                fromType="SYMBOL",
                                                 toType=expRow,
                                                 OrgDb=org.Hs.eg.db)[expRow][,1]
 
@@ -345,17 +344,17 @@ bnpathtest <- function (results, exp, expSample=NULL, algo="hc", algorithm.args=
 bngenetest <- function (results, exp, expSample=NULL, algo="hc", Rrange=seq(2,40,2), cl=NULL, algorithm.args=NULL,
                         pathNum=NULL, convertSymbol=TRUE, expRow="ENSEMBL",scoreType="aic-g")
 {
-    if (results@keytype == "kegg"){
-        resultsGeneType <- "ENTREZID"
-    } else {
-        resultsGeneType <- results@keytype
-    }
+    # if (results@keytype == "kegg"){
+    #     resultsGeneType <- "ENTREZID"
+    # } else {
+    #     resultsGeneType <- results@keytype
+    # }
 
     res <- results@result
 
     genesInPathway <- unlist(strsplit(res[pathNum, ]$geneID, "/"))
     genesInPathway <- clusterProfiler::bitr(genesInPathway,
-                                            fromType=resultsGeneType,
+                                            fromType="SYMBOL",
                                             toType=expRow,
                                             OrgDb=org.Hs.eg.db)[expRow][,1]
     pcs <- exp[ intersect(rownames(exp), genesInPathway), expSample ]
@@ -486,11 +485,11 @@ returnReactomeIntersection <- function(res, g) {
 #' @export
 
 obtainPath <- function(res, geneSymbol) {
-    if (res@keytype=="kegg"){tot <- "ENTREZID"} else {tot <- res@keytype}
-    candidateGene <- clusterProfiler::bitr(geneSymbol, fromType = "SYMBOL", toType = tot, org.Hs.eg.db)[tot]
+    # if (res@keytype=="kegg"){tot <- "ENTREZID"} else {tot <- res@keytype}
+    # candidateGene <- clusterProfiler::bitr(geneSymbol, fromType = "SYMBOL", toType = tot, org.Hs.eg.db)[tot]
     res@result <- res@result[unlist(purrr::map(purrr::map(res@result$geneID,
                                                                   function (x) unlist(strsplit(x, "/"))),
-                                                       function(x) candidateGene %in% x)),]
+                                                       function(x) geneSymbol %in% x)),]
     return(res)
 }
 
