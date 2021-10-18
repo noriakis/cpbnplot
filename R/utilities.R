@@ -652,6 +652,7 @@ bootReasonMultiple <- function (df, R, nodes, evidences, levels, algo="hc", n=NU
 #' @importFrom dplyr summarise_all mutate ungroup
 #' @importFrom bnlearn as.bn
 #' @export
+#' 
 bootReasonOneDiscrete <- function (df, R, node, evidences, algo="hc", ref=NULL, n=NULL, algorithm.args=NULL, cont=NULL) {
     bReason <- list()
     bDif <- list()
