@@ -150,7 +150,6 @@ bootReasonOneWeb <- function (df, R, node, evidences, algo="hc", ref=NULL, n=NUL
 #' @noRd
 queryCpDistLsWeb <- function (fitted, candidate, evidences, discPalette="Set2",...) {
     conc <- c()
-    print(evidences)
     for (e in evidences){
         tmp <- eval(parse(text=paste0("cpdist(fitted, nodes='",candidate,"', evidence=",e,", method='ls', ...)")))
         conc <- rbind(conc, data.frame(tmp, rep(e, nrow(tmp))))
