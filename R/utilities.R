@@ -637,3 +637,55 @@ bootReasonMultiple <- function (df, R, nodes, evidences, levels, algo="hc", n=NU
     
     return(wmMean)
 }
+
+
+#' bootReasonOneDiscrete
+#' 
+#' Perform bootstrap reasoning for event of one discrete node if network is not DAG.
+#' Logic sampling is used. Return the mean of frequency.
+#'
+#' @param df expression data
+#' @param R bootstrap number
+#' @param node candidate node (one only)
+#' @param evidences expressions of evidence e.g. c("`A` < 3", "`B` >= 2")
+#' @return mean and sd of frequency of event level
+#' @importFrom dplyr summarise_all mutate ungroup
+#' @importFrom bnlearn as.bn
+#' @export
+bootReasonOneDiscrete <- function (df, R, node, evidences, algo="hc", ref=NULL, n=NULL, algorithm.args=NULL, cont=NULL) {
+    bReason <- list()
+    bDif <- list()
+    
+    for (i in seq_len(R)) {
+        sampled <- sample(nrow(df), nrow(df), replace = TRUE)
+        struc <- eval(parse(text=paste0(algo,"(df[sampled,]", algorithm.args,")")))
+
+        if (!is.null(ref)){
+            struc <- as.bn(igraph::intersection(bnlearn::as.igraph(ref),bnlearn::as.igraph(struc)))
+            if (!igraph::is.dag(as.igraph(struc))){
+                message("intersection not DAG")
+                break
+            } else {
+                message("intersection DAG")
+            }
+        }
+
+        fitted <- bn.fit(struc, df)
+        cpdRes <- queryCpDistLsWeb(fitted, candidate=node, evidences=evidences, n=n)
+        cpdRes <- cpdRes$df
+        cpdRes <- cpdRes %>% group_by(level, !!!syms(node)) %>%
+                  summarise(n = n()) %>%
+                  mutate(freq = n / sum(n))
+
+        bReason[[i]] <- cpdRes
+    }
+
+    wmMean <- bReason %>%
+            purrr::reduce(inner_join, by = c("level", node))
+    wmMean <- cbind(
+        wmMean %>% ungroup() %>% dplyr::select(1,2),
+        wmMean %>% ungroup() %>% dplyr::select(starts_with("freq")) %>% summarize(freqMean= rowMeans(., na.rm=TRUE), freqStdev=rowSds(as.matrix(.), na.rm=TRUE)),
+        wmMean %>% ungroup() %>% dplyr::select(starts_with("n")) %>% summarize(nMean= rowMeans(., na.rm=TRUE), nStdev=rowSds(as.matrix(.), na.rm=TRUE))
+    )
+    return(wmMean)
+}
