@@ -1,3 +1,6 @@
+# DEPRECATED
+Please use [CBNplot](https://github.com/noriakis/CBNplot).
+
 ## cpbnplot: Bayesian network plot for the enrichment analysis results
 
 Plot bayesian network inferred from expression data based on the enrichment analysis results from libraries including `clusterProfiler` and `ReactomePA` using `bnlearn`.
